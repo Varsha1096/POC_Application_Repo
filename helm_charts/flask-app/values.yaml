@@ -1,0 +1,9 @@
+# Define values for your Helm chart
+image:
+  repository: pocapplicationregistry.azurecr.io/poc_application_image
+  tag: poc_application_tag
+
+
+service:
+  type: LoadBalancer
+  port: 5000

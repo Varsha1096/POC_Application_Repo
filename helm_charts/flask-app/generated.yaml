@@ -1,0 +1,59 @@
+---
+# Source: flask-app/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-db-secret
+type: Opaque
+data:
+  username: dmFyc2hhMTA5Ng==
+  password: dmE5NjQ1cnNoaSo=
+---
+# Source: flask-app/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-flask-app
+  labels:
+    app: release-name-flask-app
+spec:
+  ports:
+    - port: 80
+      targetPort: 5000
+  selector:
+    app: release-name-flask-app
+  type: LoadBalancer
+---
+# Source: flask-app/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
+      containers:
+        - name: flask-app
+          image: "poc_application_image:poc_application_image"
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret
+                  key: password
+      imagePullSecrets:
+        - name: myregistrysecret
